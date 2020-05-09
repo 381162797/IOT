@@ -1,0 +1,788 @@
+basePath: /api
+definitions:
+  api.AuthRes:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      msg:
+        type: string
+    type: object
+  models.DataPoint:
+    properties:
+      createdAt:
+        type: string
+      dataType:
+        type: integer
+      formula:
+        type: string
+      frequency:
+        type: integer
+      id:
+        type: integer
+      message:
+        type: string
+      name:
+        type: string
+      templateID:
+        type: integer
+      unit:
+        type: string
+    type: object
+  models.Device:
+    properties:
+      addr:
+        type: string
+      createdAt:
+        type: string
+      devID:
+        type: string
+      deviceName:
+        type: string
+      id:
+        type: integer
+      position:
+        type: string
+      slavers:
+        items:
+          $ref: '#/definitions/models.Slaver'
+        type: array
+      status:
+        type: boolean
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  models.DeviceTask:
+    properties:
+      devID:
+        type: string
+      frequency:
+        type: integer
+      id:
+        type: integer
+      tasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+    type: object
+  models.PointData:
+    properties:
+      cTime:
+        type: integer
+      data:
+        type: string
+      devID:
+        type: string
+      id:
+        type: integer
+      pointID:
+        type: integer
+      slaverIndex:
+        type: string
+    type: object
+  models.Slaver:
+    properties:
+      createdAt:
+        type: string
+      devID:
+        type: integer
+      id:
+        type: integer
+      slaverIndex:
+        type: integer
+      slaverName:
+        type: string
+      templateID:
+        type: integer
+      templateName:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      deviceTaskID:
+        type: integer
+      id:
+        type: integer
+      pointID:
+        type: integer
+      query:
+        type: string
+    type: object
+  models.Template:
+    properties:
+      createdAt:
+        type: string
+      dataPoints:
+        items:
+          $ref: '#/definitions/models.DataPoint'
+        type: array
+      id:
+        type: integer
+      templateName:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      lastLogin:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  v1.AddScheReq:
+    properties:
+      devID:
+        type: string
+      frequency:
+        type: integer
+      tasks:
+        items:
+          $ref: '#/definitions/v1.TaskReq'
+        type: array
+    type: object
+  v1.AddTempReq:
+    properties:
+      dataPoints:
+        items:
+          $ref: '#/definitions/v1.TempDataPoint'
+        type: array
+      templateName:
+        type: string
+      username:
+        type: string
+    type: object
+  v1.DeviceReq:
+    properties:
+      addr:
+        type: string
+      devID:
+        type: string
+      deviceName:
+        type: string
+      position:
+        type: string
+      slavers:
+        items:
+          $ref: '#/definitions/v1.slaverTemp'
+        type: array
+      username:
+        type: string
+    type: object
+  v1.LoginData:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+    type: object
+  v1.LoginRes:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/v1.LoginData'
+        type: object
+      msg:
+        example: ok
+        type: string
+    type: object
+  v1.PointDataRes:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.PointData'
+        type: array
+      msg:
+        type: string
+    type: object
+  v1.TaskReq:
+    properties:
+      pointID:
+        type: integer
+      query:
+        type: string
+    type: object
+  v1.TempDataPoint:
+    properties:
+      dataType:
+        type: integer
+      formula:
+        type: string
+      frequency:
+        type: integer
+      message:
+        type: string
+      name:
+        type: string
+      unit:
+        type: string
+    type: object
+  v1.UserRes:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/models.User'
+        type: object
+      msg:
+        type: string
+    type: object
+  v1.slaverTemp:
+    properties:
+      deviceID:
+        type: integer
+      slaverIndex:
+        type: integer
+      slaverName:
+        type: string
+      templateID:
+        type: integer
+      templateName:
+        type: string
+    type: object
+host: 127.0.0.1:15001
+info:
+  contact: {}
+  description: 加锁的API需要Authorization
+  license: {}
+  title: mserver API
+  version: "1.0"
+paths:
+  /auth:
+    get:
+      parameters:
+      - description: 用户名
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回token
+          schema:
+            $ref: '#/definitions/api.AuthRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.AuthRes'
+      summary: 获取token
+      tags:
+      - 认证
+  /login:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户名
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.LoginRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.LoginRes'
+      summary: 用户登录
+      tags:
+      - 用户
+  /user:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功 code = 200
+          schema:
+            $ref: '#/definitions/v1.UserRes'
+      summary: 删除用户
+      tags:
+      - 用户
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 用户名
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.UserRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.UserRes'
+      summary: 用户注册
+      tags:
+      - 用户
+    put:
+      parameters:
+      - description: 用户id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 旧密码
+        in: query
+        name: old
+        required: true
+        type: string
+      - description: 新密码
+        in: query
+        name: new
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/v1.UserRes'
+        "400":
+          description: 失败
+          schema:
+            $ref: '#/definitions/v1.UserRes'
+      summary: 修改密码
+      tags:
+      - 用户
+  /v1/data:
+    delete:
+      parameters:
+      - description: pointID
+        in: query
+        name: pID
+        required: true
+        type: string
+      - description: 从机地址
+        in: query
+        name: slaverIndex
+        required: true
+        type: string
+      - description: devID
+        in: query
+        name: devID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除数据点下的数据
+      tags:
+      - 数据
+    get:
+      parameters:
+      - description: pointID
+        in: query
+        name: pID
+        required: true
+        type: string
+      - description: 从机地址
+        in: query
+        name: slaverIndex
+        required: true
+        type: string
+      - description: devID
+        in: query
+        name: devID
+        required: true
+        type: string
+      - description: 开始时间(unix)
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: 结束时间(unix)
+        in: query
+        name: end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回数据
+          schema:
+            $ref: '#/definitions/v1.PointDataRes'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取数据点数据
+      tags:
+      - 数据
+  /v1/device:
+    delete:
+      parameters:
+      - description: 设备ID
+        in: query
+        name: deviceID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除设备以及从机
+      tags:
+      - 设备
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户名
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回设备
+          schema:
+            $ref: '#/definitions/v1.DeviceReq'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户设备
+      tags:
+      - 设备
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 设备
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/v1.DeviceReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回设备
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: ok
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 添加设备
+      tags:
+      - 设备
+    put:
+      consumes:
+      - application/json
+      description: 设备存在
+      parameters:
+      - description: 设备
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/v1.DeviceReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回设备
+          schema:
+            $ref: '#/definitions/models.Device'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新设备
+      tags:
+      - 设备
+  /v1/schedule:
+    delete:
+      parameters:
+      - description: 设备的devID 16位
+        in: query
+        name: devID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除设备定时任务
+      tags:
+      - 定时任务
+    get:
+      parameters:
+      - description: 添加定时任务
+        in: query
+        name: devID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回设备
+          schema:
+            $ref: '#/definitions/models.DeviceTask'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取设备定时任务
+      tags:
+      - 定时任务
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 添加定时任务
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/v1.AddScheReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回设备
+          schema:
+            $ref: '#/definitions/models.DeviceTask'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 添加设备定时任务
+      tags:
+      - 定时任务
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 更新后的定时任务
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/v1.AddScheReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回定时任务
+          schema:
+            $ref: '#/definitions/models.DeviceTask'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新并执行设备定时任务
+      tags:
+      - 定时任务
+  /v1/template:
+    delete:
+      parameters:
+      - description: 用户名
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: 模板ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 删除数据模板及其数据点
+      tags:
+      - 模板
+    get:
+      parameters:
+      - description: 用户名
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回模板
+          schema:
+            $ref: '#/definitions/models.Template'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户模板
+      tags:
+      - 模板
+    post:
+      consumes:
+      - application/json
+      description: 返回添加好的数据
+      parameters:
+      - description: 数据模板
+        in: body
+        name: template
+        required: true
+        schema:
+          $ref: '#/definitions/v1.AddTempReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回模板
+          schema:
+            $ref: '#/definitions/models.Template'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 添加数据模板及其数据点
+      tags:
+      - 模板
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 模板参数
+        in: body
+        name: template
+        required: true
+        schema:
+          $ref: '#/definitions/v1.AddTempReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回模板
+          schema:
+            $ref: '#/definitions/models.Template'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 更新数据模板
+      tags:
+      - 模板
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

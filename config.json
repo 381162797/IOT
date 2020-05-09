@@ -1,0 +1,9 @@
+{
+    "DBURL":"test:Dutong123#@tcp(39.105.171.84:3306)/iot?charset=utf8&parseTime=true",
+    "DBType":"mysql",
+    "APIAddr":":15001",
+    "TCPAddr":":15000",
+    "JwtSecret":"DDUUTT",
+    "MqttAddr":"tcp://39.102.35.28:1883/mqtt/dt",
+    "MqttClientID":"duttt_381162797"
+}
